@@ -24,7 +24,7 @@ fetch(endpoint)
 function getPlaceComponent(place) {
   return `
   <li>
-    <span class="name">${place.city}, ${place.state}</span>
+    <span class="name">${highLightWord(place.city, this.value)}, ${highLightWord(place.state, this.value)}</span>
     <span class="population">${pipeNumberComma(place.population)}</span>
   </li>
   `
@@ -34,7 +34,7 @@ function renderList() {
   const suggestions = document.querySelector('.suggestions')
   if (this.value) {
     suggestions.innerHTML = cities.filter(checkPlace.bind(this))
-                                  .map(getPlaceComponent)
+                                  .map(getPlaceComponent.bind(this))
                                   .reduce((s, e) => s += e ,'');
     return;
   }
@@ -55,6 +55,11 @@ function pipeNumberComma(num) {
     }
     return t;
   }, []).reverse().join('');
+}
+
+function highLightWord(word, value) {
+  const re = new RegExp(value, 'gi');
+  return word.replace(re, `<span class='hl'>${value}</span>`);
 }
 
 document.querySelector('.search').addEventListener('keyup', renderList);
