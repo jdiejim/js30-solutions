@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Type Ahead 👀</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <form class="search-form">
+    <input type="text" class="search" placeholder="City or State">
+    <ul class="suggestions">
+      <li>Filter for a city</li>
+      <li>or a state</li>
+    </ul>
+  </form>
+<script>
+const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+const cities = [];
+fetch(endpoint)
+    .then(response => response.json())
+    .then(data => cities.push(...data));
+
+function getPlaceComponent(place) {
+  return `
+  <li>
+    <span class="name">${place.city}, ${place.state}</span>
+    <span class="population">${pipeNumberComma(place.population)}</span>
+  </li>
+  `
+}
+
+function renderList() {
+  const suggestions = document.querySelector('.suggestions')
+  if (this.value) {
+    suggestions.innerHTML = cities.filter(checkPlace.bind(this))
+                                  .map(getPlaceComponent)
+                                  .reduce((s, e) => s += e ,'');
+    return;
+  }
+  suggestions.innerHTML = '';
+}
+
+function checkPlace(place) {
+  const value = this.value.toLowerCase();
+  return place.city.toLowerCase().includes(value) ||
+         place.state.toLowerCase().includes(value)
+}
+
+function pipeNumberComma(num) {
+  return `${num}`.split('').reverse().reduce((t, n, i, a) => {
+    t.push(n);
+    if ((i + 1) % 3 === 0 && i !== a.length - 1) {
+      t.push(',')
+    }
+    return t;
+  }, []).reverse().join('');
+}
+
+document.querySelector('.search').addEventListener('keyup', renderList);
+
+</script>
+  </body>
+</html>
